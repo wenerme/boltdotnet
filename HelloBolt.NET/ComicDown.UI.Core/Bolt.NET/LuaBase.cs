@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ComicDown.UI.Core.Bolt
+{
+    public abstract class LuaBase : IDisposable
+    {
+        private bool _disposed;
+        ~LuaBase()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public virtual void Dispose(bool disposeManagedResources)
+        {
+            if (!_disposed) {
+                if (disposeManagedResources) {
+                    OnDisposeManagedResources();
+                }
+                OnDisposeUnmangedResources();
+                _disposed = true;
+            }
+        }
+
+        protected virtual void OnDisposeUnmangedResources()
+        {
+            
+        }
+
+        protected virtual void OnDisposeManagedResources()
+        {
+            
+        }
+    }
+}
