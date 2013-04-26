@@ -14,7 +14,7 @@ namespace HelloBolt.NET
     /// 调用LuaMyClass.Register()方法注册MyClass的工厂类给BOLT环境
     /// 
     /// [BOLT用例]
-    /// local myClassFactory = XLGetObject("HelloBOlt.NET.MyClass")
+    /// local myClassFactory = XLGetObject("HelloBOlt.NET.MyClass.Factory")
     /// local myClass = myClassFactory:CreateInstance()
     /// myClass:AttachResultListener(function(result)
     ///     --process result   

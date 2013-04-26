@@ -17,7 +17,7 @@ namespace HelloBolt.NET
     /// app:WriteLine("message")
     /// </summary>
     [LuaClass(ComicDown.UI.Core.Bolt.CreatePolicy.Singleton)]
-    internal class LuaApplication:LuaBaseClass<HelloBolt.NET.Application,LuaApplication>
+    internal sealed class LuaApplication:LuaBaseClass<HelloBolt.NET.Application,LuaApplication>
     {
         [LuaClassMethod]
         private static int WriteLine(IntPtr L)
