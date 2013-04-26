@@ -10,7 +10,7 @@ namespace HelloBolt.NET
     /// 注册单例对象给BOLT环境示例：
     /// 
     /// [功能]：
-    /// 调用LuaApplication.Register()注册Application类的一个单例给BOLT环境
+    /// 调用LuaApplication.Register()注册Application类的一个单例给BOLT环境 
     /// 
     /// [BOLT用例]：
     /// local app = XLGetObject("HelloBOlt.NET.Application")
