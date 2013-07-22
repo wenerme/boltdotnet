@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ComicDown.UI.Core.Bolt;
 
 namespace ComicDown.UI.Core.Bolt
 {

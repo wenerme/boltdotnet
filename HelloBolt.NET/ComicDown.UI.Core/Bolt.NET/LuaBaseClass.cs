@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Reflection;
 
@@ -14,21 +13,20 @@ namespace ComicDown.UI.Core.Bolt
         //类型池
         //
         private static Dictionary<int, T> _instancesDict;
-        private static int _currentIndex = 0;
+        private static int _currentIndex;
         private static T _instance;
 
         //
         //类型工厂信息
         //
-        private static XLLRTFuncGetObject _lua_GetClassFactoryInstance = new XLLRTFuncGetObject(GetClassFactoryInstance);
-        private static LuaCFunction _lua_CreateInstance = new LuaCFunction(CreateInstance);
-        private static LuaCFunction _lua_DeleteInstance = new LuaCFunction(DeleteInstance);
+        private static XLLRTFuncGetObject _lua_GetClassFactoryInstance = GetClassFactoryInstance;
+        private static LuaCFunction _lua_CreateInstance = CreateInstance;
+        private static LuaCFunction _lua_DeleteInstance = DeleteInstance;
 
         //
         //类型信息
         //
         private static CreatePolicy _createPolicy;
-        private static string _typeName;
         private static string _typeFullName;
         private static string _typeFactoryClassName;
         private static string _typeFactoryObjectName;
@@ -69,7 +67,6 @@ namespace ComicDown.UI.Core.Bolt
         private static void CollectTypeInformations()
         {
             var ttype = typeof(T);
-            _typeName = ttype.Name;
             _typeFullName = ttype.FullName;
             _typeFactoryClassName = _typeFullName + ".Factory.Class";
             _typeFactoryObjectName = _typeFullName + ".Factory";
@@ -81,8 +78,6 @@ namespace ComicDown.UI.Core.Bolt
             foreach (MethodInfo method in ttype.GetMethods(BindingFlags.Static | BindingFlags.NonPublic)) {
                 foreach (LuaClassMethodAttribute attribute in method.GetCustomAttributes(typeof(LuaClassMethodAttribute), true)) {
                     var name = attribute.HasName ? attribute.Name : method.Name;
-                    var permission = attribute.Permission;
-                    var deleteOld = attribute.DeleteOld;
                     var classMemberFunction = (LuaCFunction)Delegate.CreateDelegate(typeof(LuaCFunction), method);
                     if (!_lua_functions.ContainsKey(name)) {
                         _lua_functions.Add(name, classMemberFunction);
@@ -162,12 +157,13 @@ namespace ComicDown.UI.Core.Bolt
                 IntPtr instanceIndex = new IntPtr(Marshal.ReadInt32(instancePointer));
                 T instance = _instancesDict[instanceIndex.ToInt32()];
                 return instance;
-            } else if (_createPolicy == CreatePolicy.Singleton) {
-                return _instance;
-            } else {
-                return default(T);
             }
+            if (_createPolicy == CreatePolicy.Singleton) {
+                return _instance;
+            }
+            return default(T);
         }
+
         #endregion
     }
 }

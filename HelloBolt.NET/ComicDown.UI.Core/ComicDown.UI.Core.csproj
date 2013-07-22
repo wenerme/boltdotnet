@@ -43,6 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bolt.NET\ConsoleHelper.cs" />
+    <Compile Include="Bolt.NET\Win32.cs" />
+    <Compile Include="Bolt.NET\XLGraphics.cs" />
+    <Compile Include="Bolt.NET\XLUE.cs" />
     <Compile Include="WinForm\BackGroundForm.cs">
       <SubType>Form</SubType>
     </Compile>

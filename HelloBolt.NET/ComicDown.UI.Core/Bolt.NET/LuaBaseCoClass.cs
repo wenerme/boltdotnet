@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Reflection;
 
@@ -12,10 +11,9 @@ namespace ComicDown.UI.Core.Bolt
         //
         //类型信息
         //
-        private static string _typeName;
         private static string _typeFullName;
         private static Dictionary<string, LuaCFunction> _lua_functions = new Dictionary<string, LuaCFunction>();
-        private static LuaCFunction _lua_DeleteInstance = new LuaCFunction(DeleteInstance);
+        private static LuaCFunction _lua_DeleteInstance = DeleteInstance;
         #endregion
 
         #region 构造函数
@@ -43,7 +41,6 @@ namespace ComicDown.UI.Core.Bolt
         private static void CollectTypeInformations()
         {
             var ttype = typeof(T);
-            _typeName = ttype.Name;
             _typeFullName = ttype.FullName;
         }
         private static void CollectLuaClassMembers()

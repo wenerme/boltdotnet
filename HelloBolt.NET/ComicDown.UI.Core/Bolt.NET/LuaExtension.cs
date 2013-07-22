@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ComicDown.UI.Core.Bolt
 {
@@ -101,7 +100,7 @@ namespace ComicDown.UI.Core.Bolt
                 } else {
                     L.PushNull();
                 }
-                
+
                 XLLuaRuntime.lua_setfield(L, -2, pair.Key);
             }
         }
@@ -121,11 +120,11 @@ namespace ComicDown.UI.Core.Bolt
                 XLLuaRuntime.lua_setfield(L, -2, pair.Key);
             }
         }
-        public static void PushDictionary(this IntPtr L, Dictionary<int, Tuple<string, string, string,int>> dict)
+        public static void PushDictionary(this IntPtr L, Dictionary<int, Tuple<string, string, string, int>> dict)
         {
             XLLuaRuntime.lua_newtable(L);
             foreach (var pair in dict) {
-                Push(L,pair.Key);
+                Push(L, pair.Key);
 
                 XLLuaRuntime.lua_newtable(L);
 
@@ -141,7 +140,7 @@ namespace ComicDown.UI.Core.Bolt
                 Push(L, pair.Value.Item4);
                 XLLuaRuntime.lua_rawseti(L, -2, 4);
 
-                XLLuaRuntime.lua_settable(L,-3);
+                XLLuaRuntime.lua_settable(L, -3);
             }
         }
         public static void PushXLObject(this IntPtr L, string typeName, IntPtr handle)
@@ -170,6 +169,10 @@ namespace ComicDown.UI.Core.Bolt
                 XLLuaRuntime.lua_rawseti(L, -2, i++);
             }
         }
+        public static void PushBitmap(this IntPtr L, IntPtr handle)
+        {
+            XLGraphics.XLGP_PushBitmap(L, handle);
+        }
         public static void Call(this IntPtr L, int arg, int ret)
         {
             XLLuaRuntime.XLLRT_LuaCall(L, arg, ret, null);
@@ -185,7 +188,7 @@ namespace ComicDown.UI.Core.Bolt
         {
             return XLLuaRuntime.lua_tostring(L, index);
         }
-        public static int    GetInt32(this IntPtr L,int index)
+        public static int GetInt32(this IntPtr L, int index)
         {
             return XLLuaRuntime.lua_tointeger(L, index);
         }
@@ -193,11 +196,17 @@ namespace ComicDown.UI.Core.Bolt
         {
             return XLLuaRuntime.lua_tonumber(L, index);
         }
-        public static bool   GetBool(this IntPtr L, int index)
+        public static bool GetBool(this IntPtr L, int index)
         {
             return XLLuaRuntime.lua_toboolean(L, index);
         }
-        public static List<T> GetList<T>(this IntPtr L,int index,Func<IntPtr,int,T> getor)
+        public static IntPtr GetBitmap(this IntPtr L, int index)
+        {
+            IntPtr bitmap = IntPtr.Zero;
+            XLGraphics.XLGP_CheckBitmap(L, index, ref bitmap);
+            return bitmap;
+        }
+        public static List<T> GetList<T>(this IntPtr L, int index, Func<IntPtr, int, T> getor)
         {
             var result = new List<T>();
             var size = XLLuaRuntime.lua_objlen(L, index);
@@ -205,17 +214,178 @@ namespace ComicDown.UI.Core.Bolt
                 int _lastTopIndex = XLLuaRuntime.lua_gettop(L);
                 XLLuaRuntime.lua_rawgeti(L, index, i);
                 var value = getor(L, -1);
-                XLLuaRuntime.lua_settop(L, _lastTopIndex);   
+                XLLuaRuntime.lua_settop(L, _lastTopIndex);
                 result.Add(value);
             }
             return result;
         }
-        public static int GetFuncRef(this IntPtr L){
+        public static Tuple<T1, T2> GetTuple<T1, T2>(
+            this IntPtr L,
+            int index,
+            Func<IntPtr, int, T1> getor1,
+            Func<IntPtr, int, T2> getor2)
+        {
+            int _lastTopIndex = XLLuaRuntime.lua_gettop(L);
+
+            //Get First Item
+            XLLuaRuntime.lua_rawgeti(L, index, 1);
+            var value1 = getor1(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Second Item
+            XLLuaRuntime.lua_rawgeti(L, index, 2);
+            var value2 = getor2(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            return Tuple.Create(value1, value2);
+        }
+        public static Tuple<T1, T2, T3> GetTuple<T1, T2, T3>(
+            this IntPtr L,
+            int index,
+            Func<IntPtr, int, T1> getor1,
+            Func<IntPtr, int, T2> getor2,
+            Func<IntPtr, int, T3> getor3)
+        {
+            int _lastTopIndex = XLLuaRuntime.lua_gettop(L);
+
+            //Get First Item
+            XLLuaRuntime.lua_rawgeti(L, index, 1);
+            var value1 = getor1(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Second Item
+            XLLuaRuntime.lua_rawgeti(L, index, 2);
+            var value2 = getor2(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Thrird Item
+            XLLuaRuntime.lua_rawgeti(L, index, 3);
+            var value3 = getor3(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            return Tuple.Create(value1, value2, value3);
+        }
+        public static Tuple<T1, T2, T3, T4> GetTuple<T1, T2, T3, T4>(
+            this IntPtr L,
+            int index,
+            Func<IntPtr, int, T1> getor1,
+            Func<IntPtr, int, T2> getor2,
+            Func<IntPtr, int, T3> getor3,
+            Func<IntPtr, int, T4> getor4)
+        {
+            int _lastTopIndex = XLLuaRuntime.lua_gettop(L);
+
+            //Get First Item
+            XLLuaRuntime.lua_rawgeti(L, index, 1);
+            var value1 = getor1(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Second Item
+            XLLuaRuntime.lua_rawgeti(L, index, 2);
+            var value2 = getor2(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Thrird Item
+            XLLuaRuntime.lua_rawgeti(L, index, 3);
+            var value3 = getor3(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Forth Item
+            XLLuaRuntime.lua_rawgeti(L, index, 4);
+            var value4 = getor4(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            return Tuple.Create(value1, value2, value3, value4);
+        }
+        public static Tuple<T1, T2, T3, T4, T5> GetTuple<T1, T2, T3, T4, T5>(
+            this IntPtr L,
+            int index,
+            Func<IntPtr, int, T1> getor1,
+            Func<IntPtr, int, T2> getor2,
+            Func<IntPtr, int, T3> getor3,
+            Func<IntPtr, int, T4> getor4,
+            Func<IntPtr, int, T5> getor5)
+        {
+            int _lastTopIndex = XLLuaRuntime.lua_gettop(L);
+
+            //Get First Item
+            XLLuaRuntime.lua_rawgeti(L, index, 1);
+            var value1 = getor1(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Second Item
+            XLLuaRuntime.lua_rawgeti(L, index, 2);
+            var value2 = getor2(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Thrird Item
+            XLLuaRuntime.lua_rawgeti(L, index, 3);
+            var value3 = getor3(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Forth Item
+            XLLuaRuntime.lua_rawgeti(L, index, 4);
+            var value4 = getor4(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Fifth Item
+            XLLuaRuntime.lua_rawgeti(L, index, 5);
+            var value5 = getor5(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            return Tuple.Create(value1, value2, value3, value4, value5);
+        }
+        public static Tuple<T1, T2, T3, T4, T5, T6> GetTuple<T1, T2, T3, T4, T5, T6>(
+            this IntPtr L,
+            int index,
+            Func<IntPtr, int, T1> getor1,
+            Func<IntPtr, int, T2> getor2,
+            Func<IntPtr, int, T3> getor3,
+            Func<IntPtr, int, T4> getor4,
+            Func<IntPtr, int, T5> getor5,
+            Func<IntPtr, int, T6> getor6)
+        {
+            int _lastTopIndex = XLLuaRuntime.lua_gettop(L);
+
+            //Get First Item
+            XLLuaRuntime.lua_rawgeti(L, index, 1);
+            var value1 = getor1(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Second Item
+            XLLuaRuntime.lua_rawgeti(L, index, 2);
+            var value2 = getor2(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Thrird Item
+            XLLuaRuntime.lua_rawgeti(L, index, 3);
+            var value3 = getor3(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Forth Item
+            XLLuaRuntime.lua_rawgeti(L, index, 4);
+            var value4 = getor4(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Fifth Item
+            XLLuaRuntime.lua_rawgeti(L, index, 5);
+            var value5 = getor5(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            //Get Sixth Item
+            XLLuaRuntime.lua_rawgeti(L, index, 6);
+            var value6 = getor6(L, -1);
+            XLLuaRuntime.lua_settop(L, _lastTopIndex);
+
+            return Tuple.Create(value1, value2, value3, value4, value5, value6);
+        }
+        public static int GetFuncRef(this IntPtr L)
+        {
             return XLLuaRuntime.luaL_ref(L, (int)LuaInnerIndex.LUA_REGISTRYINDEX);
         }
-        public static void Pop(this IntPtr L,int n)
+        public static void Pop(this IntPtr L, int n)
         {
-            XLLuaRuntime.lua_settop(L, 0-n-1);
+            XLLuaRuntime.lua_settop(L, 0 - n - 1);
         }
         #endregion
 
@@ -231,13 +401,13 @@ namespace ComicDown.UI.Core.Bolt
         {
             return LuaAction.Create(L, caller);
         }
-        public static Action<T> ToAction<T>(this IntPtr L,Action<T> caller)
+        public static Action<T> ToAction<T>(this IntPtr L, Action<T> caller)
         {
             return LuaAction<T>.Create(L, caller);
         }
-        public static Action<T1,T2> ToAction<T1,T2>(this IntPtr L, Action<T1,T2> caller)
+        public static Action<T1, T2> ToAction<T1, T2>(this IntPtr L, Action<T1, T2> caller)
         {
-            return LuaAction<T1,T2>.Create(L, caller);
+            return LuaAction<T1, T2>.Create(L, caller);
         }
         public static Action<T1, T2, T3> ToAction<T1, T2, T3>(this IntPtr L, Action<T1, T2, T3> caller)
         {
@@ -258,26 +428,38 @@ namespace ComicDown.UI.Core.Bolt
         {
             return LuaFunc<R>.Create(L, caller);
         }
-        public static Func<T1,R> ToFunc<T1,R>(this IntPtr L, Func<T1,R> caller)
+        public static Func<T1, R> ToFunc<T1, R>(this IntPtr L, Func<T1, R> caller)
         {
-            return LuaFunc<T1,R>.Create(L, caller);
+            return LuaFunc<T1, R>.Create(L, caller);
         }
-        public static Func<T1,T2, R> ToFunc<T1,T2, R>(this IntPtr L, Func<T1,T2, R> caller)
+        public static Func<T1, T2, R> ToFunc<T1, T2, R>(this IntPtr L, Func<T1, T2, R> caller)
         {
-            return LuaFunc<T1,T2, R>.Create(L, caller);
+            return LuaFunc<T1, T2, R>.Create(L, caller);
         }
-        public static Func<T1, T2,T3, R> ToFunc<T1, T2,T3, R>(this IntPtr L, Func<T1, T2,T3, R> caller)
+        public static Func<T1, T2, T3, R> ToFunc<T1, T2, T3, R>(this IntPtr L, Func<T1, T2, T3, R> caller)
         {
-            return LuaFunc<T1, T2, T3,R>.Create(L, caller);
+            return LuaFunc<T1, T2, T3, R>.Create(L, caller);
         }
-        public static Func<T1, T2, T3,T4, R> ToFunc<T1, T2, T3,T4, R>(this IntPtr L, Func<T1, T2, T3,T4, R> caller)
+        public static Func<T1, T2, T3, T4, R> ToFunc<T1, T2, T3, T4, R>(this IntPtr L, Func<T1, T2, T3, T4, R> caller)
         {
-            return LuaFunc<T1, T2, T3,T4, R>.Create(L, caller);
+            return LuaFunc<T1, T2, T3, T4, R>.Create(L, caller);
+        }
+        public static Func<T1, T2, T3, T4, T5, R> ToFunc<T1, T2, T3, T4, T5, R>(this IntPtr L, Func<T1, T2, T3, T4, T5, R> caller)
+        {
+            return LuaFunc<T1, T2, T3, T4, T5, R>.Create(L, caller);
+        }
+        public static Func<T1, T2, T3, T4, T5, T6, R> ToFunc<T1, T2, T3, T4, T5, T6, R>(this IntPtr L, Func<T1, T2, T3, T4, T5, T6, R> caller)
+        {
+            return LuaFunc<T1, T2, T3, T4, T5, T6, R>.Create(L, caller);
+        }
+        public static Func<T1, T2, T3, T4, T5, T6, T7, R> ToFunc<T1, T2, T3, T4, T5, T6, T7, R>(this IntPtr L, Func<T1, T2, T3, T4, T5, T6, T7, R> caller)
+        {
+            return LuaFunc<T1, T2, T3, T4, T5, T6, T7, R>.Create(L, caller);
         }
         #endregion
 
         #region Chunk Extension
-        public static IntPtr CreateChunkFromModule(this string name,string file,string func)
+        public static IntPtr CreateChunkFromModule(this string name, string file, string func)
         {
             IntPtr handle = IntPtr.Zero;
             XLLuaRuntime.XLLRT_CreateChunkFromModule(name, file, func, handle);
@@ -293,7 +475,7 @@ namespace ComicDown.UI.Core.Bolt
         #endregion
 
         #region L Utilies
-        public static void IF(this IntPtr L, Func<IntPtr,bool> filter, Action action)
+        public static void IF(this IntPtr L, Func<IntPtr, bool> filter, Action action)
         {
             if (filter(L)) {
                 action();

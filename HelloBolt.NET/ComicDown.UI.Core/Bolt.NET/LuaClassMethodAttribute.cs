@@ -1,41 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ComicDown.UI.Core.Bolt
 {
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class LuaClassMethodAttribute : System.Attribute 
     {
-        private string name;
-        private int permission;
-        private bool deleteOld;
-        private readonly bool hasName;
+        private readonly string _name;
+        private readonly int _permission;
+        private readonly bool _deleteOld;
+        private readonly bool _hasName;
 
-        public string Name { get { return name; } }
-        public int Permission { get { return permission; } }
-        public bool DeleteOld { get { return deleteOld; } }
-        public bool HasName { get { return hasName; } }
+        public string Name { get { return _name; } }
+        public int Permission { get { return _permission; } }
+        public bool DeleteOld { get { return _deleteOld; } }
+        public bool HasName { get { return _hasName; } }
 
         public LuaClassMethodAttribute(string name, int permission, bool deleteOld)
         {
-            this.name = name;
-            this.permission = permission;
-            this.deleteOld = deleteOld;
-            this.hasName =!string.IsNullOrEmpty(name);
+            _name = name;
+            _permission = permission;
+            _deleteOld = deleteOld;
+            _hasName =!string.IsNullOrEmpty(name);
         }
         public LuaClassMethodAttribute(string name)
         {
-            this.name = name;
-            this.permission = 0;
-            this.deleteOld = false;
-            this.hasName = !string.IsNullOrEmpty(name);
+            _name = name;
+            _permission = 0;
+            _deleteOld = false;
+            _hasName = !string.IsNullOrEmpty(name);
         }
         public LuaClassMethodAttribute()
         {
-            this.permission = 0;
-            this.deleteOld = false;
-            this.hasName = false;
+            _permission = 0;
+            _deleteOld = false;
+            _hasName = false;
         }
     }
 }

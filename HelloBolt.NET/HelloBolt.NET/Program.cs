@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using ComicDown.UI.Core.Bolt;
 using System.IO;
+using ComicDown.UI.Core.Bolt;
+
 
 namespace HelloBolt.NET
 {
