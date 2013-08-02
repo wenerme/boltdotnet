@@ -26,7 +26,6 @@ namespace ComicDown.UI.Core.Bolt
 
         private Queue<Action> _invokeActions;
         private uint _threadID;
-        private int _managedThreadID;
 
         private static bool IsMessageLoopBegin
         {
@@ -43,11 +42,12 @@ namespace ComicDown.UI.Core.Bolt
                 }
             }
         }
-        public int ManagerdThreadID
+        public int ManagerdThreadID { get; private set; }
+        public BackGroundForm HostForm
         {
             get
             {
-                return _managedThreadID;
+                return _backGroundForm;
             }
         }
 
@@ -64,20 +64,14 @@ namespace ComicDown.UI.Core.Bolt
             _backGroundForm.TimerTick += InvokeActions;
         }
 
-        public BackGroundForm HostForm
-        {
-            get
-            {
-                return _backGroundForm;
-            }
-        }
+
         public void Run(string xarSearchPath, string xar, Action callback, bool initXGP = false)
         {
             Initialization(initXGP);
             XLLuaRuntime.XLLRT_ErrorHandle(ErrorHandle);
-            AddXARSearchPath(xarSearchPath);
+            AddXarSearchPath(xarSearchPath);
             callback();
-            LoadXAR(xar);
+            LoadXar(xar);
             MessageLoop();
         }
         public void Invoke(Action action)
@@ -114,34 +108,40 @@ namespace ComicDown.UI.Core.Bolt
             _messageFilters.Remove(filter);
         }
 
-        private void Initialization(bool initXGP = false)
+        private static void Initialization(bool initXGP = false)
         {
             XLUE.XL_InitGraphicLib(0);
             XLUE.XL_SetFreeTypeEnabled(1);
 
             XLUE.XLUE_InitLoader(0);
-            if (initXGP) {
-                var size = Marshal.SizeOf(typeof(XLGraphics.tagXLGraphicPlusParam));
-                var ptr = Marshal.AllocHGlobal(size);
-                var strcut = new XLGraphics.tagXLGraphicPlusParam {
-                    bInitLua = true
-                };
-                Marshal.StructureToPtr(strcut, ptr, false);
-                XLGraphics.XLGP_InitGraphicPlus(ptr);
-            }
+            if (!initXGP) return;
+
+            var size = Marshal.SizeOf(typeof(XLGraphics.tagXLGraphicPlusParam));
+            var ptr = Marshal.AllocHGlobal(size);
+            var strcut = new XLGraphics.tagXLGraphicPlusParam {
+                bInitLua = true
+            };
+            Marshal.StructureToPtr(strcut, ptr, false);
+            XLGraphics.XLGP_InitGraphicPlus(ptr);
         }
-        private void AddXARSearchPath(String newFolderPath)
+        private static void AddXarSearchPath(String newFolderPath)
         {
             XLUE.XLUE_AddXARSearchPath(newFolderPath);
         }
-        private void LoadXAR(String xarName)
+        private static void LoadXar(String xarName)
         {
             XLUE.XLUE_LoadXAR(xarName);
         }
+        private static int BoltErrorHandle(IntPtr luaState, string pExtInfo, string luaErrorString, IntPtr pStackInfo)
+        {
+            DumpError(luaState, pExtInfo, luaErrorString);
+            return 0;
+        }
+
         private void MessageLoop()
         {
             _threadID = (uint)Win32.GetCurrentThreadId();
-            _managedThreadID = Thread.CurrentThread.ManagedThreadId;
+            ManagerdThreadID = Thread.CurrentThread.ManagedThreadId;
             var msg = new Win32.MSG();
             Win32.PeekMessage(ref msg, IntPtr.Zero, Win32.WM_USER, Win32.WM_USER, Win32.PM_NOREMOVE);
             IsMessageLoopBegin = true;
@@ -191,42 +191,35 @@ namespace ComicDown.UI.Core.Bolt
                         Monitor.Exit(_invokeActions);
                         try {
                             action();
-                        } catch {
-
+                        } catch(Exception ex){
+                            Console.WriteLine(ex.Message);
                         }
                         Monitor.Enter(_invokeActions);
                         action = _invokeActions.Count > 0 ? _invokeActions.Dequeue() : null;
                     }
-                } catch {
-
+                } catch(Exception ex){
+                    Console.WriteLine(ex.Message);
                 } finally {
                     Monitor.Exit(_invokeActions);
                 }
             }
         }
-        private static int BoltErrorHandle(IntPtr luaState, string pExtInfo, string luaErrorString, IntPtr pStackInfo)
-        {
-            DumpError(luaState, pExtInfo, luaErrorString);
-            return 0;
-        }
-
+        
         [Conditional("DEBUG")]
         private static void DumpError(IntPtr luaState, string pExtInfo, string luaErrorString)
         {
-            try {
-                var stackBuffer = new StringBuilder(1024);
-                XLUE.XLUE_GetLuaStack(luaState, stackBuffer, 1024);
-                ConsoleHelper.WriteLineWithColor(ConsoleColor.Red, "\n──────────────────────────────────");
-                ConsoleHelper.WriteLineWithColor(ConsoleColor.Red, "★BOLT错误：");
-                ConsoleHelper.WriteLineWithColor(ConsoleColor.Red, "──────────────────────────────────");
-                ConsoleHelper.WriteLineWithColor(ConsoleColor.Red, pExtInfo);
-                ConsoleHelper.WriteLineWithColor(ConsoleColor.Red, luaErrorString ?? "未知");
-                ConsoleHelper.WriteLineWithColor(ConsoleColor.Red, "─────────\n");
-                ConsoleHelper.WriteLineWithColor(ConsoleColor.Red, stackBuffer.ToString());
-                ConsoleHelper.WriteLineWithColor(ConsoleColor.Red, "─────────\n");
-            } catch {
-
-            }
+            var e = new StringBuilder();
+            var stackBuffer = new StringBuilder(1024);
+            XLUE.XLUE_GetLuaStack(luaState, stackBuffer, 1024);
+            e.Append("\n──────────────────────────────────")
+             .Append("★BOLT错误：")
+             .Append("──────────────────────────────────")
+             .Append(pExtInfo)
+             .Append(luaErrorString ?? "未知")
+             .Append("─────────\n")
+             .Append(stackBuffer)
+             .Append("─────────\n");
+            DBG.DumpError(e.ToString());
         }
     }
 }

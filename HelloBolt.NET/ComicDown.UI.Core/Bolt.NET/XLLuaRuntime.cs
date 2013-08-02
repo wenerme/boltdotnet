@@ -4,9 +4,6 @@ using System.Runtime.InteropServices;
 
 namespace ComicDown.UI.Core.Bolt
 {
-	/// <summary>
-	/// Lua Inner Index
-	/// </summary>
 	public enum LuaInnerIndex
 	{
 		LUA_REGISTRYINDEX = -10000,
@@ -14,9 +11,6 @@ namespace ComicDown.UI.Core.Bolt
 		LUA_GLOBALSINDEX = -10002,
 	}
 	
-	/// <summary>
-	/// Lua Baic Types
-	/// </summary>
 	public enum LuaTypes
 	{
 		LUA_TNIL = 0,
@@ -46,11 +40,6 @@ namespace ComicDown.UI.Core.Bolt
         public XLLRTErrorHash hash;
     }
 
-	/// <summary>
-	/// Lua C Function 
-	/// </summary>
-	/// <param name="L">Lua State</param>
-	/// <returns></returns>
 	[UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
 	public delegate int LuaCFunction (IntPtr luaState);
 
@@ -65,16 +54,8 @@ namespace ComicDown.UI.Core.Bolt
     );
 
 
-	/// <summary>
-	/// XLLRT GetObject CallBack
-	/// </summary>
-	/// <param name="ud"></param>
-	/// <returns></returns>
 	public delegate IntPtr XLLRTFuncGetObject(IntPtr ud);
 
-    /// <summary>
-    /// XLLRT Global API
-    /// </summary>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct XLLRTGlobalAPI
 	{
@@ -84,9 +65,6 @@ namespace ComicDown.UI.Core.Bolt
 		public UInt32 permission;
 	}
 	
-    /// <summary>
-    /// XLLRT Object
-    /// </summary>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct XLLRTObject
 	{
@@ -105,9 +83,6 @@ namespace ComicDown.UI.Core.Bolt
 		public UInt32 permission;
 	}
 
-    /// <summary>
-    /// XLLRT Class
-    /// </summary>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct XLLRTClass
 	{
@@ -128,43 +103,31 @@ namespace ComicDown.UI.Core.Bolt
         public string ObjectName { get; set; }
         public IntPtr UserData { get; set; }
         public XLLRTFuncGetObject GetFunction { get; set; }
-        public Dictionary<string, LuaCFunction> Methods { get; set; }
+        public SortedList<string, LuaCFunction> Methods { get; set; }
     }
     public sealed class XLRTClassInfo
     {
         public string ClassName { get; set; }
         public string FatherClassName { get; set; }
         public LuaCFunction DeleteFunction { get; set; }
-        public Dictionary<string, LuaCFunction> Methods { get; set; }
+        public SortedList<string, LuaCFunction> Methods { get; set; }
     }
     public sealed class XLRTMethodsInfo
     {
-        public Dictionary<string, LuaCFunction> Methods { get; set; }
+        public SortedList<string, LuaCFunction> Methods { get; set; }
     }
 
-    /// <summary>
-    /// Xunlei Lua Runtime .NET Wrapper
-    /// </summary>
 	public sealed class XLLuaRuntime
     {
         #region Singleton 
-        /// <summary>
-        /// static instance of XLLuaRuntime
-        /// </summary>
-        private static XLLuaRuntime instance = null;
+        private static XLLuaRuntime instance;
 
-        /// <summary>
-        /// static constructor
-        /// </summary>
-        /// <returns></returns>
         public static XLLuaRuntime Instance()
         {
-            if (instance == null) {
-                instance = new XLLuaRuntime();
-            }
-            return instance;
+            return instance ?? (instance = new XLLuaRuntime());
         }
-        #endregion
+
+	    #endregion
 
         #region Set Dll Path
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -423,7 +386,7 @@ namespace ComicDown.UI.Core.Bolt
             int i = 0;
             var pClassMember = Marshal.AllocHGlobal(GLOBAL_API_SIZE * (info.Methods.Count+1));
             foreach (var methodInfo in info.Methods) {
-                var pClassMemberGlobalAPI = new XLLRTGlobalAPI() {
+                var pClassMemberGlobalAPI = new XLLRTGlobalAPI{
                     permission = 0,
                     funName = methodInfo.Key,
                     func = methodInfo.Value
@@ -433,7 +396,7 @@ namespace ComicDown.UI.Core.Bolt
                 Marshal.StructureToPtr(pClassMemberGlobalAPI, pClassMemberPos, false);
                 i++;
             }
-            var pNullMemberGlobalAPI = new XLLRTGlobalAPI() {
+            var pNullMemberGlobalAPI = new XLLRTGlobalAPI{
                 permission = 0,
                 funName = null,
                 func = null
@@ -441,7 +404,7 @@ namespace ComicDown.UI.Core.Bolt
             var pNullMemberPos = new IntPtr(pClassMember.ToInt32()+info.Methods.Count*GLOBAL_API_SIZE);
             Marshal.StructureToPtr(pNullMemberGlobalAPI, pNullMemberPos, false);
 
-            var factoryObject = new XLLRTObject() {
+            var factoryObject = new XLLRTObject{
                 className = info.ClassName,
                 objName = info.ObjectName,
                 userData = info.UserData,
@@ -456,7 +419,7 @@ namespace ComicDown.UI.Core.Bolt
             int i = 0;
             var pClassMember = Marshal.AllocHGlobal(GLOBAL_API_SIZE * (info.Methods.Count+2));
             foreach (var methodInfo in info.Methods) {
-                var pClassMemberGlobalAPI = new XLLRTGlobalAPI() {
+                var pClassMemberGlobalAPI = new XLLRTGlobalAPI{
                     permission = 0,
                     funName = methodInfo.Key,
                     func = methodInfo.Value
@@ -465,7 +428,7 @@ namespace ComicDown.UI.Core.Bolt
                 Marshal.StructureToPtr(pClassMemberGlobalAPI, pClassMemberPos, false);
                 i++;
             }
-            var pDeleteMemberGlobalAPI = new XLLRTGlobalAPI() {
+            var pDeleteMemberGlobalAPI = new XLLRTGlobalAPI{
                 permission = 0,
                 funName = "__gc",
                 func = info.DeleteFunction
@@ -473,7 +436,7 @@ namespace ComicDown.UI.Core.Bolt
             var pDeleteMemberPos = new IntPtr(pClassMember.ToInt32() + info.Methods.Count * GLOBAL_API_SIZE);
             Marshal.StructureToPtr(pDeleteMemberGlobalAPI, pDeleteMemberPos, false);
 
-            var pNullMemberGlobalAPI = new XLLRTGlobalAPI() {
+            var pNullMemberGlobalAPI = new XLLRTGlobalAPI{
                 permission = 0,
                 funName = null,
                 func = null
@@ -486,9 +449,8 @@ namespace ComicDown.UI.Core.Bolt
         }
         public static void RegisterGlobalAPI(IntPtr hEnviroment, XLRTMethodsInfo info)
         {
-            int i = 0;
             foreach (var methodInfo in info.Methods) {
-                var pClassMemberGlobalAPI = new XLLRTGlobalAPI() {
+                var pClassMemberGlobalAPI = new XLLRTGlobalAPI{
                     permission = 0,
                     funName = methodInfo.Key,
                     func = methodInfo.Value
@@ -498,7 +460,6 @@ namespace ComicDown.UI.Core.Bolt
                 if (XLLRT_IsGlobalAPIRegistered(hEnviroment, methodInfo.Key)==IntPtr.Zero) {
                     Console.WriteLine("Func {0} has been registed!",methodInfo.Key);
                 }
-                i++;
             }
         }
         #endregion
@@ -506,10 +467,10 @@ namespace ComicDown.UI.Core.Bolt
         #region 全局方法迭代器
         public static void PrintAllGlobalMethods()
         {
-            IntPtr hEnviroment = XLLuaRuntime.XLLRT_GetEnv(new IntPtr(0));
-            IntPtr hEnum = XLLRT_BeginEnumGlobalAPI(hEnviroment);
-            XLLRTGlobalAPI luaAPI = new XLLRTGlobalAPI();
-            IntPtr luaAPIPtr = Marshal.AllocHGlobal(GLOBAL_API_SIZE);
+            var hEnviroment = XLLuaRuntime.XLLRT_GetEnv(new IntPtr(0));
+            var hEnum = XLLRT_BeginEnumGlobalAPI(hEnviroment);
+            var luaAPI = new XLLRTGlobalAPI();
+            var luaAPIPtr = Marshal.AllocHGlobal(GLOBAL_API_SIZE);
             while(XLLRT_GetNextGlobalAPI(hEnum, luaAPIPtr))
             {
                 luaAPI = (XLLRTGlobalAPI)Marshal.PtrToStructure(luaAPIPtr, typeof(XLLRTGlobalAPI));
@@ -519,27 +480,28 @@ namespace ComicDown.UI.Core.Bolt
         }
         public static void PrintAllGlobalClasses()
         {
-            IntPtr hEnviroment = XLLuaRuntime.XLLRT_GetEnv(new IntPtr(0));
-            IntPtr hEnum = XLLRT_BeginEnumGlobalClass(hEnviroment);
-            XLLRTClass luaClass = new XLLRTClass();
-            IntPtr luaClassPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(XLLRTClass)));
+            var hEnviroment = XLLuaRuntime.XLLRT_GetEnv(new IntPtr(0));
+            var hEnum = XLLRT_BeginEnumGlobalClass(hEnviroment);
+            var luaClass = new XLLRTClass();
+            var luaClassPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(XLLRTClass)));
             while (XLLRT_GetNextGlobalClass(hEnum, luaClassPtr)) {
                 luaClass = (XLLRTClass)Marshal.PtrToStructure(luaClassPtr, typeof(XLLRTClass));
-                if (luaClass.className.Contains("Tree")) {
-                    Console.WriteLine("name={0}", luaClass.className);
-                    IntPtr luaAPIPtr = luaClass.MemberFunctions;
-                    IntPtr pClassMemberPos = luaAPIPtr;
-                    XLLRTGlobalAPI luaAPI = (XLLRTGlobalAPI)Marshal.PtrToStructure(pClassMemberPos, typeof(XLLRTGlobalAPI));
-                    int i = 1;
-                    while (luaAPI.funName != null) {
-                        Console.WriteLine("name={0}", luaAPI.funName);
-                        var pos = luaAPIPtr.ToInt32() + i * GLOBAL_API_SIZE;
-                        pClassMemberPos = new IntPtr(pos);
-                        luaAPI = (XLLRTGlobalAPI)Marshal.PtrToStructure(pClassMemberPos, typeof(XLLRTGlobalAPI));
-                        i++;
-                    }
-                    break;
+                if (!luaClass.className.Contains("Tree")) continue;
+                Console.WriteLine("name={0}", luaClass.className);
+
+                var luaAPIPtr = luaClass.MemberFunctions;
+                var pClassMemberPos = luaAPIPtr;
+                var luaAPI = (XLLRTGlobalAPI)Marshal.PtrToStructure(pClassMemberPos, typeof(XLLRTGlobalAPI));
+                var i = 1;
+                while (luaAPI.funName != null) {
+                    Console.WriteLine("name={0}", luaAPI.funName);
+
+                    var pos = luaAPIPtr.ToInt32() + i * GLOBAL_API_SIZE;
+                    pClassMemberPos = new IntPtr(pos);
+                    luaAPI = (XLLRTGlobalAPI)Marshal.PtrToStructure(pClassMemberPos, typeof(XLLRTGlobalAPI));
+                    i++;
                 }
+                break;
             }
             XLLRT_EndEnum(hEnum);
         }

@@ -4,24 +4,21 @@ namespace ComicDown.UI.Core.Bolt
 {
     public abstract class LuaBaseView
     {
-        private int enviromentID = 0;
-        public LuaBaseView() { }
-
         protected IntPtr GetLuaRuntime()
         {
-            IntPtr pNULL = new IntPtr(0);
-            IntPtr hEnviroment = XLLuaRuntime.XLLRT_GetEnv(pNULL);
-            IntPtr hRuntime = XLLuaRuntime.XLLRT_GetRuntime(hEnviroment, null);
+            var pNull = new IntPtr(0);
+            var hEnviroment = XLLuaRuntime.XLLRT_GetEnv(pNull);
+            var hRuntime = XLLuaRuntime.XLLRT_GetRuntime(hEnviroment, null);
             return hRuntime;
         }
 
         protected IntPtr GetLuaState()
         {
-            IntPtr pNULL = new IntPtr(0);
-            IntPtr hEnviroment = XLLuaRuntime.XLLRT_GetEnv(pNULL);
-            IntPtr hRuntime = XLLuaRuntime.XLLRT_GetRuntime(hEnviroment, null);
-            IntPtr L = XLLuaRuntime.XLLRT_GetLuaState(hRuntime);
-            return L;
+            var pNull = new IntPtr(0);
+            var hEnviroment = XLLuaRuntime.XLLRT_GetEnv(pNull);
+            var hRuntime = XLLuaRuntime.XLLRT_GetRuntime(hEnviroment, null);
+            var luaState = XLLuaRuntime.XLLRT_GetLuaState(hRuntime);
+            return luaState;
         }
 
         protected IntPtr GetLuaChunk(string file,string func)

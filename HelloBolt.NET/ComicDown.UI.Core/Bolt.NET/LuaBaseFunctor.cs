@@ -7,7 +7,8 @@ namespace ComicDown.UI.Core.Bolt
         protected IntPtr _luaState;
         protected int _luaFunctionRefIndex;
         protected int _lastTopIndex;
-        public LuaBaseFunctor(IntPtr luaState)
+
+        protected LuaBaseFunctor(IntPtr luaState)
         {
             _luaState = luaState;
             _luaFunctionRefIndex = luaState.GetFuncRef();
@@ -16,14 +17,11 @@ namespace ComicDown.UI.Core.Bolt
         {
             base.OnDisposeUnmangedResources();
             XLBolt.Instance().Invoke(() => {
-                if (_luaState != IntPtr.Zero) {
-                    XLLuaRuntime.luaL_unref(
-                        _luaState,
-                        (int)LuaInnerIndex.LUA_REGISTRYINDEX,
-                        _luaFunctionRefIndex);
-                    _luaState = IntPtr.Zero;
-                    _luaFunctionRefIndex = 0;
-                }
+                if (_luaState == IntPtr.Zero) return;
+                const int luaRegistryIndex = (int)LuaInnerIndex.LUA_REGISTRYINDEX;
+                XLLuaRuntime.luaL_unref(_luaState, luaRegistryIndex, _luaFunctionRefIndex);
+                _luaState = IntPtr.Zero;
+                _luaFunctionRefIndex = 0;
             });
         }
         protected void BeginCall()

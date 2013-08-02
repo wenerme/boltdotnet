@@ -18,13 +18,12 @@ namespace ComicDown.UI.Core.Bolt
 
         public virtual void Dispose(bool disposeManagedResources)
         {
-            if (!_disposed) {
-                if (disposeManagedResources) {
-                    OnDisposeManagedResources();
-                }
-                OnDisposeUnmangedResources();
-                _disposed = true;
+            if (_disposed) return;
+            if (disposeManagedResources) {
+                OnDisposeManagedResources();
             }
+            OnDisposeUnmangedResources();
+            _disposed = true;
         }
 
         protected virtual void OnDisposeUnmangedResources()

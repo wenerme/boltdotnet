@@ -4,20 +4,14 @@ namespace ComicDown.UI.Core.Bolt
 {
     public enum CreatePolicy { Factory, Singleton}
 
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class,AllowMultiple = false)]
     public sealed class LuaClassAttribute:Attribute
     {
-        private readonly CreatePolicy _createPolicy;
-        public CreatePolicy CreatePolicy
-        {
-            get
-            {
-                return _createPolicy;
-            }
-        }
+        public CreatePolicy CreatePolicy { get; private set; }
+
         public LuaClassAttribute(CreatePolicy policy)
         {
-            _createPolicy = policy;
+            CreatePolicy = policy;
         }
     }
 }

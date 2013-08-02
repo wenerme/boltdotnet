@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bolt.NET\ConsoleHelper.cs" />
+    <Compile Include="Bolt.NET\DBG.cs" />
     <Compile Include="Bolt.NET\Win32.cs" />
     <Compile Include="Bolt.NET\XLGraphics.cs" />
     <Compile Include="Bolt.NET\XLUE.cs" />
@@ -52,7 +52,6 @@
     <Compile Include="WinForm\BackGroundForm.Designer.cs">
       <DependentUpon>BackGroundForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Bolt.NET\ExtensionAttribute.cs" />
     <Compile Include="Bolt.NET\LuaBase.cs" />
     <Compile Include="Bolt.NET\LuaBaseClass.cs" />
     <Compile Include="Bolt.NET\LuaBaseFunctor.cs" />
@@ -74,6 +73,7 @@
       <DependentUpon>BackGroundForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

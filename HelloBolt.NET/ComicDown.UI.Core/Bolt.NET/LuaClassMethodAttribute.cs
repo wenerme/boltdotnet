@@ -2,38 +2,33 @@
 
 namespace ComicDown.UI.Core.Bolt
 {
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method,AllowMultiple = false)]
     public sealed class LuaClassMethodAttribute : System.Attribute 
     {
-        private readonly string _name;
-        private readonly int _permission;
-        private readonly bool _deleteOld;
-        private readonly bool _hasName;
-
-        public string Name { get { return _name; } }
-        public int Permission { get { return _permission; } }
-        public bool DeleteOld { get { return _deleteOld; } }
-        public bool HasName { get { return _hasName; } }
+        public string Name { get; private set; }
+        public int Permission { get; private set; }
+        public bool DeleteOld { get; private set; }
+        public bool HasName { get; private set; }
 
         public LuaClassMethodAttribute(string name, int permission, bool deleteOld)
         {
-            _name = name;
-            _permission = permission;
-            _deleteOld = deleteOld;
-            _hasName =!string.IsNullOrEmpty(name);
+            Name = name;
+            Permission = permission;
+            DeleteOld = deleteOld;
+            HasName =!string.IsNullOrEmpty(name);
         }
         public LuaClassMethodAttribute(string name)
         {
-            _name = name;
-            _permission = 0;
-            _deleteOld = false;
-            _hasName = !string.IsNullOrEmpty(name);
+            Name = name;
+            Permission = 0;
+            DeleteOld = false;
+            HasName = !string.IsNullOrEmpty(name);
         }
         public LuaClassMethodAttribute()
         {
-            _permission = 0;
-            _deleteOld = false;
-            _hasName = false;
+            Permission = 0;
+            DeleteOld = false;
+            HasName = false;
         }
     }
 }

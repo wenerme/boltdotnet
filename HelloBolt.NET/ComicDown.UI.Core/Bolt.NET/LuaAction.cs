@@ -17,8 +17,7 @@ namespace ComicDown.UI.Core.Bolt
 
         public static Action Create(IntPtr luaState, Action caller)
         {
-            var instance = new LuaAction(luaState);
-            return instance.Create(caller);
+            return new LuaAction(luaState).Create(caller);
         }
     }
     public sealed class LuaAction<T>:LuaBaseFunctor
@@ -27,7 +26,7 @@ namespace ComicDown.UI.Core.Bolt
 
         private Action<T> Create(Action<T> caller)
         {
-            return (t) => {
+            return t => {
                 BeginCall();
                 caller(t);
                 EndCall();
@@ -36,8 +35,7 @@ namespace ComicDown.UI.Core.Bolt
 
         public static Action<T> Create(IntPtr luaState,Action<T> caller)
         {
-            var instance = new LuaAction<T>(luaState);
-            return instance.Create(caller);
+            return new LuaAction<T>(luaState).Create(caller);
         }
     }
     public sealed class LuaAction<T1,T2> : LuaBaseFunctor
@@ -55,8 +53,7 @@ namespace ComicDown.UI.Core.Bolt
 
         public static Action<T1,T2> Create(IntPtr luaState, Action<T1,T2> caller)
         {
-            var instance = new LuaAction<T1,T2>(luaState);
-            return instance.Create(caller);
+            return new LuaAction<T1,T2>(luaState).Create(caller);
         }
     }
     public sealed class LuaAction<T1,T2,T3> : LuaBaseFunctor
@@ -74,8 +71,7 @@ namespace ComicDown.UI.Core.Bolt
 
         public static Action<T1, T2,T3> Create(IntPtr luaState, Action<T1, T2,T3> caller)
         {
-            var instance = new LuaAction<T1, T2,T3>(luaState);
-            return instance.Create(caller);
+            return new LuaAction<T1, T2,T3>(luaState).Create(caller);
         }
     }
     public sealed class LuaAction<T1,T2,T3,T4> : LuaBaseFunctor
@@ -93,8 +89,7 @@ namespace ComicDown.UI.Core.Bolt
 
         public static Action<T1, T2, T3,T4> Create(IntPtr luaState, Action<T1, T2, T3,T4> caller)
         {
-            var instance = new LuaAction<T1, T2, T3,T4>(luaState);
-            return instance.Create(caller);
+            return new LuaAction<T1, T2, T3,T4>(luaState).Create(caller);
         }
     }
     public sealed class LuaAction<T1, T2, T3, T4,T5> : LuaBaseFunctor
@@ -112,8 +107,7 @@ namespace ComicDown.UI.Core.Bolt
 
         public static Action<T1, T2, T3,T4,T5> Create(IntPtr luaState, Action<T1, T2, T3,T4,T5> caller)
         {
-            var instance = new LuaAction<T1, T2, T3,T4,T5>(luaState);
-            return instance.Create(caller);
+            return new LuaAction<T1, T2, T3,T4,T5>(luaState).Create(caller);
         }
     }
 }

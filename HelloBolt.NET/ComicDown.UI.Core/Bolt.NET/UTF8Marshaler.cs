@@ -7,7 +7,7 @@ namespace ComicDown.UI.Core
     internal class UTF8MarshalerNoCleanUp : UTF8Marshaler
     {
         private static readonly UTF8MarshalerNoCleanUp staticInstance = new UTF8MarshalerNoCleanUp();
-        public static ICustomMarshaler GetInstance(string cookie)
+        public new static ICustomMarshaler GetInstance(string cookie)
         {
             return staticInstance;
         }
@@ -18,12 +18,6 @@ namespace ComicDown.UI.Core
     internal class UTF8Marshaler : ICustomMarshaler
     {
         private static readonly UTF8Marshaler staticInstance = new UTF8Marshaler();
-        private readonly bool ownsPointer;
-
-        internal UTF8Marshaler(bool ownsPointer = false)
-        {
-            this.ownsPointer = ownsPointer;
-        }
 
         #region ICustomMarshaler Members
 
